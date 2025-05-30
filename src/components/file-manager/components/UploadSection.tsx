@@ -397,4 +397,4 @@ const EnhancedUploadSection: React.FC<UploadSectionProps> = ({
   )
 }
 
-export default EnhancedUploadSection
+export default EnhancedUploadSection;

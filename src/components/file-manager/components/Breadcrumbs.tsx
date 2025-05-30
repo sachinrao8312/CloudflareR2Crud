@@ -1,17 +1,20 @@
 // src/components/file-manager/components/Breadcrumbs.tsx
 
 import React from 'react'
+import { Home, ChevronRight } from 'lucide-react'
 
 interface BreadcrumbsProps {
   currentPath: string
   onNavigate: (path: string) => void
   onGoHome: () => void
+  darkMode: boolean
 }
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   currentPath,
   onNavigate,
-  onGoHome
+  onGoHome,
+  darkMode
 }) => {
   const getBreadcrumbs = () => {
     if (!currentPath) return []
@@ -23,28 +26,32 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   }
 
   const breadcrumbs = getBreadcrumbs()
+  const surfaceClass = darkMode ? 'bg-gray-900/80' : 'bg-white/80'
+  const borderClass = darkMode ? 'border-gray-800/50' : 'border-gray-200/50'
+  const textClass = darkMode ? 'text-gray-300' : 'text-gray-700'
+  const hoverTextClass = darkMode ? 'hover:text-white' : 'hover:text-orange-600'
+  const chevronClass = darkMode ? 'text-gray-500' : 'text-gray-300'
 
   return (
     <nav className="mb-8">
       <div className="flex items-center space-x-2 text-sm">
         <button
           onClick={onGoHome}
-          className="flex items-center px-3 py-2 rounded-lg bg-white/60 backdrop-blur-sm border border-gray-200/50 hover:bg-white hover:shadow-md transition-all duration-200 font-medium text-gray-700 hover:text-orange-600"
+          className={`flex items-center px-3 py-2 rounded-lg ${surfaceClass} backdrop-blur-sm border ${borderClass} transition-all duration-200 font-medium cursor-pointer hover:scale-105 hover:shadow-md ${textClass} ${hoverTextClass} ${
+            darkMode ? 'hover:bg-gray-800 hover:border-gray-700' : 'hover:bg-white hover:border-gray-300'
+          }`}
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v1H8V5z" />
-          </svg>
+          <Home className="w-4 h-4 mr-2" />
           Home
         </button>
         {breadcrumbs.map((crumb, index) => (
           <React.Fragment key={index}>
-            <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-            </svg>
+            <ChevronRight className={`w-4 h-4 ${chevronClass}`} />
             <button
               onClick={() => onNavigate(crumb.path)}
-              className="px-3 py-2 rounded-lg bg-white/60 backdrop-blur-sm border border-gray-200/50 hover:bg-white hover:shadow-md transition-all duration-200 font-medium text-gray-700 hover:text-orange-600"
+              className={`px-3 py-2 rounded-lg ${surfaceClass} backdrop-blur-sm border ${borderClass} transition-all duration-200 font-medium cursor-pointer hover:scale-105 hover:shadow-md ${textClass} ${hoverTextClass} ${
+                darkMode ? 'hover:bg-gray-800 hover:border-gray-700' : 'hover:bg-white hover:border-gray-300'
+              }`}
             >
               {crumb.name}
             </button>
