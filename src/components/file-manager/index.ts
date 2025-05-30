@@ -13,10 +13,10 @@ export { useDragAndDrop } from './hooks/useDragAndDrop'
 
 // Components
 export { FileManagerHeader } from './components/FileManagerHeader'
-export { Breadcrumbs } from './components/Breadcrumbs'
+export { EnhancedBreadcrumbs } from './components/Breadcrumbs'
 export { BulkActions } from './components/BulkActions'
 // export { EnhanceUploadSection } from './components/UploadSection'
-export { FileList } from './components/FileList'
+export { EnhancedFileList } from './components/FileList'
 export { FilePreview } from './components/FilePreview'
 export { CreateFolderModal } from './components/CreateFolderModal'
 export { DeleteConfirmModal } from './components/DeleteConfirmModal'

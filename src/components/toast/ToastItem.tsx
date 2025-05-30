@@ -1,176 +1,174 @@
 // src/components/toast/ToastItem.tsx
 
 import React, { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, CheckCircle, XCircle, AlertTriangle, Info, Sparkles } from 'lucide-react'
 import { Toast } from '../../types/toast'
 
-interface ToastItemProps {
+interface EnhancedToastItemProps {
   toast: Toast
   onRemove: (id: string) => void
   darkMode?: boolean
 }
 
-export const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, darkMode = true }) => {
+export const EnhancedToastItem: React.FC<EnhancedToastItemProps> = ({ 
+  toast, 
+  onRemove, 
+  darkMode = true 
+}) => {
   const [isVisible, setIsVisible] = useState(false)
+  const [isExiting, setIsExiting] = useState(false)
 
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 10)
+    setTimeout(() => setIsVisible(true), 50)
   }, [])
 
   const handleClose = () => {
-    setIsVisible(false)
+    setIsExiting(true)
     setTimeout(() => onRemove(toast.id), 300)
   }
 
-  const getToastStyles = () => {
-    if (darkMode) {
-      switch (toast.type) {
-        case 'success':
-          return 'bg-gray-900/95 border-gray-700'
-        case 'error':
-          return 'bg-gray-900/95 border-gray-700'
-        case 'warning':
-          return 'bg-gray-900/95 border-gray-700'
-        case 'info':
-          return 'bg-gray-900/95 border-gray-700'
-        default:
-          return 'bg-gray-900/95 border-gray-700'
-      }
-    } else {
-      switch (toast.type) {
-        case 'success':
-          return 'bg-white/95 border-gray-200'
-        case 'error':
-          return 'bg-white/95 border-gray-200'
-        case 'warning':
-          return 'bg-white/95 border-gray-200'
-        case 'info':
-          return 'bg-white/95 border-gray-200'
-        default:
-          return 'bg-white/95 border-gray-200'
-      }
-    }
-  }
-
-  const getIconColor = () => {
-    switch (toast.type) {
-      case 'success': return 'text-emerald-500'
-      case 'error': return 'text-red-500'
-      case 'warning': return 'text-amber-500'
-      case 'info': return 'text-blue-500'
-      default: return 'text-gray-500'
-    }
-  }
-
-  const getTextColor = () => {
-    if (darkMode) {
-      return 'text-gray-200'
-    } else {
-      return 'text-gray-900'
-    }
-  }
-
-  const getSecondaryTextColor = () => {
-    if (darkMode) {
-      return 'text-gray-400'
-    } else {
-      return 'text-gray-600'
-    }
-  }
-
-  const getIconBgColor = () => {
-    if (darkMode) {
-      switch (toast.type) {
-        case 'success': return 'bg-emerald-900/50'
-        case 'error': return 'bg-red-900/50'
-        case 'warning': return 'bg-amber-900/50'
-        case 'info': return 'bg-blue-900/50'
-        default: return 'bg-gray-800/50'
-      }
-    } else {
-      switch (toast.type) {
-        case 'success': return 'bg-emerald-100'
-        case 'error': return 'bg-red-100'
-        case 'warning': return 'bg-amber-100'
-        case 'info': return 'bg-blue-100'
-        default: return 'bg-gray-100'
-      }
-    }
-  }
-
-  const getIcon = () => {
-    const iconClass = `w-4 h-4 ${getIconColor()}`
-    const bgClass = getIconBgColor()
-    
+  const getToastConfig = () => {
     switch (toast.type) {
       case 'success':
-        return (
-          <div className={`w-6 h-6 ${bgClass} rounded-full flex items-center justify-center`}>
-            <svg className={iconClass} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-          </div>
-        )
+        return {
+          icon: CheckCircle,
+          bgGradient: 'from-emerald-500 to-green-600',
+          borderColor: 'border-emerald-400/50',
+          iconBg: 'bg-emerald-400/20',
+          iconColor: 'text-emerald-100',
+          textColor: 'text-emerald-50',
+          secondaryText: 'text-emerald-100/80'
+        }
       case 'error':
-        return (
-          <div className={`w-6 h-6 ${bgClass} rounded-full flex items-center justify-center`}>
-            <X className={iconClass} />
-          </div>
-        )
+        return {
+          icon: XCircle,
+          bgGradient: 'from-red-500 to-red-600',
+          borderColor: 'border-red-400/50',
+          iconBg: 'bg-red-400/20',
+          iconColor: 'text-red-100',
+          textColor: 'text-red-50',
+          secondaryText: 'text-red-100/80'
+        }
       case 'warning':
-        return (
-          <div className={`w-6 h-6 ${bgClass} rounded-full flex items-center justify-center`}>
-            <svg className={iconClass} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          </div>
-        )
+        return {
+          icon: AlertTriangle,
+          bgGradient: 'from-amber-500 to-orange-600',
+          borderColor: 'border-amber-400/50',
+          iconBg: 'bg-amber-400/20',
+          iconColor: 'text-amber-100',
+          textColor: 'text-amber-50',
+          secondaryText: 'text-amber-100/80'
+        }
       case 'info':
-        return (
-          <div className={`w-6 h-6 ${bgClass} rounded-full flex items-center justify-center`}>
-            <svg className={iconClass} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-          </div>
-        )
+        return {
+          icon: Info,
+          bgGradient: 'from-blue-500 to-indigo-600',
+          borderColor: 'border-blue-400/50',
+          iconBg: 'bg-blue-400/20',
+          iconColor: 'text-blue-100',
+          textColor: 'text-blue-50',
+          secondaryText: 'text-blue-100/80'
+        }
       default:
-        return null
+        return {
+          icon: Info,
+          bgGradient: 'from-gray-500 to-gray-600',
+          borderColor: 'border-gray-400/50',
+          iconBg: 'bg-gray-400/20',
+          iconColor: 'text-gray-100',
+          textColor: 'text-gray-50',
+          secondaryText: 'text-gray-100/80'
+        }
     }
   }
+
+  const config = getToastConfig()
+  const IconComponent = config.icon
 
   return (
     <div
       className={`
         transform transition-all duration-500 ease-out
-        ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
-        shadow-xl rounded-xl border backdrop-blur-sm p-4 ${getToastStyles()}
+        ${isVisible && !isExiting 
+          ? 'translate-x-0 opacity-100 scale-100' 
+          : 'translate-x-full opacity-0 scale-95'
+        }
+        bg-gradient-to-r ${config.bgGradient} 
+        rounded-2xl shadow-2xl border-2 ${config.borderColor}
+        backdrop-blur-xl p-6 max-w-sm w-full
+        hover:scale-105 hover:shadow-3xl cursor-pointer
+        relative overflow-hidden
       `}
+      onClick={handleClose}
     >
-      <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0">
-          {getIcon()}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className={`font-semibold text-sm ${getTextColor()}`}>
-            {toast.title}
-          </p>
-          {toast.message && (
-            <p className={`text-sm mt-1 opacity-80 ${getSecondaryTextColor()}`}>
-              {toast.message}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={handleClose}
-          className={`flex-shrink-0 transition-colors cursor-pointer rounded p-1 hover:scale-110 ${
-            darkMode 
-              ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800' 
-              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-          }`}
-        >
-          <X className="w-4 h-4" />
-        </button>
+      {/* Background Animation */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Sparkle Effect */}
+      <div className="absolute top-2 right-2">
+        <Sparkles className="w-4 h-4 text-white/60 animate-pulse" />
       </div>
+
+      <div className="relative flex items-start space-x-4">
+        {/* Enhanced Icon */}
+        <div className={`flex-shrink-0 w-12 h-12 rounded-2xl ${config.iconBg} flex items-center justify-center backdrop-blur-sm border border-white/20`}>
+          <IconComponent className={`w-7 h-7 ${config.iconColor}`} />
+        </div>
+        
+        {/* Enhanced Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <h4 className={`font-bold text-lg ${config.textColor} mb-1`}>
+                {toast.title}
+              </h4>
+              {toast.message && (
+                <p className={`text-sm ${config.secondaryText} leading-relaxed`}>
+                  {toast.message}
+                </p>
+              )}
+              
+              {/* Timestamp */}
+              <p className={`text-xs mt-2 ${config.secondaryText} opacity-75`}>
+                {new Date(toast.timestamp).toLocaleTimeString()}
+              </p>
+            </div>
+            
+            {/* Enhanced Close Button */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation()
+                handleClose()
+              }}
+              className="ml-4 p-2 text-white/70 hover:text-white transition-all duration-200 rounded-xl hover:bg-white/10 hover:scale-110 active:scale-95"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress Bar for Auto-dismiss */}
+      {toast.duration && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 overflow-hidden">
+          <div 
+            className="h-full bg-white/40 transition-all ease-linear"
+            style={{
+              animation: `shrink ${toast.duration}ms linear forwards`,
+              width: '100%'
+            }}
+          />
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes shrink {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+      `}</style>
     </div>
   )
 }
+
+export default EnhancedToastItem
