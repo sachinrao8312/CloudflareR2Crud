@@ -9,7 +9,7 @@ interface ButtonProps {
   disabled?: boolean
   loading?: boolean
   children: React.ReactNode
-  onClick?: () => void
+  onClick?: (event?: React.MouseEvent<HTMLButtonElement>) => void
   className?: string
   type?: 'button' | 'submit' | 'reset'
 }
@@ -52,11 +52,3 @@ export const Button: React.FC<ButtonProps> = ({
     </button>
   )
 }
-
-
-
-
-
-
-
-

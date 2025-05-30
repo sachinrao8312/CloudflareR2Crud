@@ -5,7 +5,7 @@ import { FileManagerState } from '../../../types/fileManager'
 import { ToastInput } from '../../../types/toast'
 
 interface UseFileOperationsReturn {
-  downloadFile: (key: string) => Promise<void>
+  downloadFile: (key: string, fileName?: string) => Promise<void>
   createFolder: (folderName: string) => Promise<void>
   bulkDelete: () => Promise<void>
 }
@@ -15,8 +15,14 @@ export const useFileOperations = (
   addToast: (toast: ToastInput) => void
 ): UseFileOperationsReturn => {
 
-  const downloadFile = useCallback(async (key: string) => {
+  const downloadFile = useCallback(async (key: string, fileName?: string) => {
     try {
+      addToast({
+        type: 'info',
+        title: 'Download Starting',
+        message: 'Preparing file for download...'
+      })
+
       const response = await fetch('/api/files', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,20 +32,61 @@ export const useFileOperations = (
       if (!response.ok) throw new Error('Failed to get download URL')
       const { signedUrl } = await response.json()
       
-      // Open download in new tab
-      window.open(signedUrl, '_blank')
+      // Extract filename from key if not provided
+      const downloadFileName = fileName || key.split('/').pop() || 'download'
       
-      addToast({
-        type: 'success',
-        title: 'Download Started',
-        message: 'File download has started'
-      })
+      try {
+        // Try to use fetch to download and trigger browser download
+        const fileResponse = await fetch(signedUrl)
+        if (!fileResponse.ok) throw new Error('Failed to fetch file')
+        
+        const blob = await fileResponse.blob()
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = downloadFileName
+        link.style.display = 'none'
+        
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        // Clean up
+        window.URL.revokeObjectURL(url)
+        
+        addToast({
+          type: 'success',
+          title: 'Download Started',
+          message: `${downloadFileName} download has started`
+        })
+        
+      } catch (fetchError) {
+        // Fallback: open in new tab with download intent
+        const link = document.createElement('a')
+        link.href = signedUrl
+        link.download = downloadFileName
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        addToast({
+          type: 'success',
+          title: 'Download Started',
+          message: `${downloadFileName} opened in new tab`
+        })
+      }
+      
     } catch (error) {
       console.error('Error downloading file:', error)
       addToast({
         type: 'error',
         title: 'Download Failed',
-        message: 'Error downloading file'
+        message: error instanceof Error ? error.message : 'Error downloading file'
       })
     }
   }, [addToast])
@@ -48,6 +95,12 @@ export const useFileOperations = (
     if (!folderName.trim()) return
 
     try {
+      addToast({
+        type: 'info',
+        title: 'Creating Folder',
+        message: `Creating folder "${folderName}"...`
+      })
+
       const folderKey = state.currentPath + folderName.trim() + '/.keep'
       
       const response = await fetch('/api/upload', {
@@ -82,7 +135,7 @@ export const useFileOperations = (
       addToast({
         type: 'error',
         title: 'Failed to Create Folder',
-        message: 'Error creating folder'
+        message: error instanceof Error ? error.message : 'Error creating folder'
       })
     }
   }, [state, addToast])
@@ -91,48 +144,97 @@ export const useFileOperations = (
     if (state.selectedItems.size === 0) return
 
     try {
+      addToast({
+        type: 'info',
+        title: 'Deleting Items',
+        message: `Deleting ${state.selectedItems.size} item(s)...`
+      })
+
       const deletePromises = Array.from(state.selectedItems).map(async (key) => {
-        if (typeof key === 'string' && key.endsWith('/')) {
-          // Handle folder deletion
-          const folderFiles = state.files.filter((file: any) => 
-            file.Key && typeof file.Key === 'string' && file.Key.startsWith(key)
-          )
-          return Promise.all(
-            folderFiles.map((file: any) => 
+        try {
+          if (typeof key === 'string' && key.endsWith('/')) {
+            // Handle folder deletion - delete all files in the folder
+            const folderFiles = state.files.filter((file: any) => 
+              file.Key && typeof file.Key === 'string' && file.Key.startsWith(key)
+            )
+            
+            const folderDeletePromises = folderFiles.map((file: any) => 
               fetch('/api/files', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key: file.Key })
               })
             )
-          )
-        } else {
-          // Handle single file deletion
-          return fetch('/api/files', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key })
-          })
+            
+            const results = await Promise.allSettled(folderDeletePromises)
+            const failedDeletes = results.filter(r => r.status === 'rejected')
+            
+            if (failedDeletes.length > 0) {
+              throw new Error(`Failed to delete ${failedDeletes.length} files in folder`)
+            }
+            
+            return { key, success: true, type: 'folder' }
+          } else {
+            // Handle single file deletion
+            const response = await fetch('/api/files', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key })
+            })
+            
+            if (!response.ok) {
+              throw new Error(`Failed to delete file: ${response.statusText}`)
+            }
+            
+            return { key, success: true, type: 'file' }
+          }
+        } catch (error) {
+          console.error(`Error deleting ${key}:`, error)
+          return { 
+            key, 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error',
+            type: typeof key === 'string' && key.endsWith('/') ? 'folder' : 'file'
+          }
         }
       })
 
-      await Promise.all(deletePromises)
+      const results = await Promise.allSettled(deletePromises)
       
-      addToast({
-        type: 'success',
-        title: 'Items Deleted',
-        message: `${state.selectedItems.size} item(s) deleted successfully`
-      })
+      const successful = results.filter(r => 
+        r.status === 'fulfilled' && r.value.success
+      ).length
+      
+      const failed = results.filter(r => 
+        r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+      ).length
+
+      if (successful > 0) {
+        addToast({
+          type: 'success',
+          title: 'Items Deleted',
+          message: `${successful} item(s) deleted successfully${failed > 0 ? `, ${failed} failed` : ''}`
+        })
+      }
+
+      if (failed > 0) {
+        addToast({
+          type: 'error',
+          title: 'Some Deletions Failed',
+          message: `${failed} item(s) could not be deleted`
+        })
+      }
       
       state.setSelectedItems(new Set())
       state.setShowDeleteConfirm(false)
       state.fetchFiles()
+      
     } catch (error) {
       console.error('Error in bulk delete:', error)
       addToast({
         type: 'error',
         title: 'Delete Failed',
-        message: 'Some items could not be deleted'
+        message: error instanceof Error ? error.message : 'Unexpected error during deletion'
       })
     }
   }, [state, addToast])
@@ -143,4 +245,3 @@ export const useFileOperations = (
     bulkDelete
   }
 }
-

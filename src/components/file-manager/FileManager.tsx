@@ -9,15 +9,15 @@ import { useNavigation } from './hooks/useNavigation'
 import { useDragAndDrop } from './hooks/useDragAndDrop'
 import { FileManagerHeader } from './components/FileManagerHeader'
 import { Breadcrumbs } from './components/Breadcrumbs'
-import { SearchBar } from './components/SearchBar'
+import { EnhancedSearchBar } from './components/SearchBar'
 import { BulkActions } from './components/BulkActions'
-import { UploadSection } from './components/UploadSection'
 import { FileList } from './components/FileList'
 import { FilePreview } from './components/FilePreview'
 import { CreateFolderModal } from './components/CreateFolderModal'
 import { DeleteConfirmModal } from './components/DeleteConfirmModal'
 import { ToastContainer } from '../toast/ToastContainer'
 import { useToast } from '../toast/useToast'
+import EnhancedUploadSection from './components/UploadSection'
 
 const FileManager: React.FC = () => {
   // State management
@@ -47,7 +47,7 @@ const FileManager: React.FC = () => {
         />
 
         {/* Search */}
-        <SearchBar
+        <EnhancedSearchBar
           searchQuery={state.searchQuery}
           isSearching={state.isSearching}
           onSearch={navigation.handleSearch}
@@ -68,7 +68,7 @@ const FileManager: React.FC = () => {
         )}
 
         {/* Upload Section */}
-        <UploadSection
+        <EnhancedUploadSection
           selectedFiles={fileUpload.selectedFiles}
           uploadProgress={fileUpload.uploadProgress}
           isUploading={fileUpload.isUploading}

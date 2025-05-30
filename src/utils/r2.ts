@@ -68,7 +68,7 @@ export async function getSignedUrlForUpload(
   }
 }
 
-export async function getSignedUrlForDownload(key: string): Promise<string> {
+export async function getSignedUrlForDownload(key: string, p0?: boolean): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: R2_BUCKET,
     Key: key
