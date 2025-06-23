@@ -1,6 +1,7 @@
 // src/components/file-manager/components/FilePreview.tsx
 
 import React, { useState } from 'react'
+import NextImage from 'next/image'
 import { X, Download, Maximize2 } from 'lucide-react'
 import { FolderItem } from '../../../types/fileManager'
 import { Modal } from '../../ui/Modal'
@@ -75,6 +76,9 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
               fileName={previewFile.name}
               imageError={imageError}
               setImageError={setImageError}
+              onDownload={onDownload}
+              onClose={onClose}
+              darkMode={darkMode}
             />
           )}
 
@@ -94,6 +98,8 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
               darkMode={darkMode}
               borderClass={borderClass}
               textClass={textClass}
+              onDownload={onDownload}
+              onClose={onClose}
             />
           )}
 
@@ -139,7 +145,10 @@ const ImagePreview: React.FC<{
   fileName: string
   imageError: boolean
   setImageError: (error: boolean) => void
-}> = ({ fileKey, fileName, imageError, setImageError }) => {
+  onDownload: (key: string) => void
+  onClose: () => void
+  darkMode: boolean
+}> = ({ fileKey, fileName, imageError, setImageError, onDownload, onClose, darkMode }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   React.useEffect(() => {
@@ -169,17 +178,39 @@ const ImagePreview: React.FC<{
   }
 
   return (
-    <div className="text-center">
-      <div className="relative inline-block">
-        <img
+    <div className="text-center space-y-6">
+      <div className="relative inline-block max-w-full max-h-96">
+        <NextImage
           src={previewUrl}
           alt={fileName}
-          className="max-w-full max-h-96 rounded-lg shadow-lg"
+          width={800}
+          height={600}
+          className="max-w-full max-h-96 rounded-lg shadow-lg object-contain"
           onError={() => setImageError(true)}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
         />
         <button className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-lg hover:bg-black/70 transition-colors">
           <Maximize2 className="w-4 h-4" />
         </button>
+      </div>
+      
+      {/* Download and Close Buttons */}
+      <div className="flex justify-center space-x-4">
+        <Button 
+          variant="secondary" 
+          onClick={onClose}
+          darkMode={darkMode}
+        >
+          Close
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={() => onDownload(fileKey)}
+          darkMode={darkMode}
+        >
+          <Download className="w-4 h-4 mr-2 inline" />
+          Download Image
+        </Button>
       </div>
     </div>
   )
@@ -238,7 +269,9 @@ const AudioPreview: React.FC<{
   darkMode: boolean
   borderClass: string
   textClass: string
-}> = ({ fileKey, fileName, darkMode, borderClass, textClass }) => {
+  onDownload: (key: string) => void
+  onClose: () => void
+}> = ({ fileKey, fileName, darkMode, borderClass, textClass, onDownload, onClose }) => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
 
   React.useEffect(() => {
@@ -267,7 +300,7 @@ const AudioPreview: React.FC<{
   }
 
   return (
-    <div className="text-center py-8">
+    <div className="text-center py-8 space-y-6">
       <div className={`max-w-md mx-auto p-6 rounded-lg border ${borderClass} ${darkMode ? 'bg-gray-800/50' : 'bg-gray-50/50'}`}>
         <EnhancedFileIcon type="audio" className="w-16 h-16 mx-auto mb-4" />
         <h4 className={`text-lg font-semibold mb-4 ${textClass}`}>{fileName}</h4>
@@ -279,6 +312,25 @@ const AudioPreview: React.FC<{
           <source src={audioUrl} />
           Your browser does not support the audio tag.
         </audio>
+      </div>
+      
+      {/* Download and Close Buttons */}
+      <div className="flex justify-center space-x-4">
+        <Button 
+          variant="secondary" 
+          onClick={onClose}
+          darkMode={darkMode}
+        >
+          Close
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={() => onDownload(fileKey)}
+          darkMode={darkMode}
+        >
+          <Download className="w-4 h-4 mr-2 inline" />
+          Download Audio
+        </Button>
       </div>
     </div>
   )

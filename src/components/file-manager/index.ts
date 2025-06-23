@@ -1,8 +1,7 @@
 // src/components/file-manager/index.ts
 
-
 // Main component
-export { default } from './FileManager'
+export { default as FileManager } from './FileManager'
 
 // Hooks
 export { useFileManagerState } from './hooks/useFileManagerState'
@@ -12,34 +11,23 @@ export { useNavigation } from './hooks/useNavigation'
 export { useDragAndDrop } from './hooks/useDragAndDrop'
 
 // Components
-export { FileManagerHeader } from './components/FileManagerHeader'
+export { EnhancedFileManagerHeader, EnhancedFileManagerHeader as FileManagerHeader } from './components/FileManagerHeader'
 export { EnhancedBreadcrumbs } from './components/Breadcrumbs'
-export { BulkActions } from './components/BulkActions'
-// export { EnhanceUploadSection } from './components/UploadSection'
+export { EnhancedBulkActions } from './components/BulkActions'
 export { EnhancedFileList } from './components/FileList'
 export { FilePreview } from './components/FilePreview'
 export { CreateFolderModal } from './components/CreateFolderModal'
 export { DeleteConfirmModal } from './components/DeleteConfirmModal'
+export { EnhancedUploadDropdown } from './components/UploadDropdown'
+export { EnhancedSearchBar } from './components/SearchBar'
 
-// src/components/ui/index.ts
+// Types
+export type { FileObject, FolderItem, FileManagerState, BreadcrumbItem, FileType } from '../../types/fileManager'
 
-// UI Components
-
-
-// src/components/toast/index.ts
-
-// Toast System
-import { ToastConfig } from '@/types/toast'
-
-
-// src/config/fileManager.ts
-
-
-// File Manager Configuration
+// Constants and utilities
 export const FILE_MANAGER_CONFIG = {
-  // Upload settings
   maxFileSize: 100 * 1024 * 1024, // 100MB
-  maxFilesPerUpload: 50,
+  maxFiles: 100,
   allowedFileTypes: [
     // Images
     'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico',
@@ -49,7 +37,7 @@ export const FILE_MANAGER_CONFIG = {
     'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma',
     // Documents
     'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt',
-    // Code files
+    // Code
     'js', 'ts', 'html', 'css', 'json', 'xml', 'py', 'java',
     'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift',
     // Archives
@@ -59,58 +47,14 @@ export const FILE_MANAGER_CONFIG = {
     // Presentations
     'ppt', 'pptx'
   ],
-
-  // UI settings
-  defaultViewMode: 'list' as 'grid' | 'list',
-  defaultSortBy: 'name' as 'name' | 'date' | 'size',
-  defaultSortOrder: 'asc' as 'asc' | 'desc',
-  
-  // Search settings
-  searchDebounceMs: 300,
-  
-  // Grid view settings
-  gridColumns: {
-    sm: 2,
-    md: 3,
-    lg: 4,
-    xl: 6,
-    '2xl': 8
-  },
-
-  // Performance settings
-  virtualScrolling: false, // Enable for large file lists
-  lazyLoadThumbnails: true,
-  
-  // Feature flags
-  features: {
-    dragAndDrop: true,
-    bulkOperations: true,
-    filePreview: true,
-    folderCreation: true,
-    fileSearch: true,
-    sortAndFilter: true,
-    keyboardShortcuts: true
-  }
+  chunkSize: 5 * 1024 * 1024, // 5MB chunks for large uploads
+  retryAttempts: 3,
+  retryDelay: 1000, // 1 second
+  previewTimeout: 10000, // 10 seconds
+  supportedPreviewTypes: ['image', 'video', 'audio', 'document']
 }
 
-// Toast Configuration
-export const TOAST_CONFIG: ToastConfig = {
-  maxToasts: 5,
-  defaultDuration: 5000,
-  position: 'top-right'
-}
-
-// Keyboard Shortcuts
-export const KEYBOARD_SHORTCUTS = {
-  search: 'ctrl+k',
-  selectAll: 'ctrl+a',
-  delete: 'delete',
-  escape: 'escape',
-  upload: 'ctrl+u',
-  newFolder: 'ctrl+shift+n'
-}
-
-// Error Messages
+// Validation utilities
 export const ERROR_MESSAGES = {
   UPLOAD_FAILED: 'Failed to upload file',
   DOWNLOAD_FAILED: 'Failed to download file',
@@ -123,27 +67,17 @@ export const ERROR_MESSAGES = {
   INVALID_FILE_NAME: 'Invalid file name'
 }
 
-// Success Messages
-export const SUCCESS_MESSAGES = {
-  UPLOAD_SUCCESS: 'File uploaded successfully',
-  DOWNLOAD_SUCCESS: 'Download started',
-  DELETE_SUCCESS: 'File deleted successfully',
-  CREATE_FOLDER_SUCCESS: 'Folder created successfully',
-  BULK_DELETE_SUCCESS: 'Items deleted successfully'
-}
-
-// File type icons mapping (for fallback)
-export const FILE_TYPE_ICONS = {
-  folder: '📁',
-  image: '🖼️',
-  video: '🎥',
-  audio: '🎵',
-  document: '📄',
-  code: '💻',
-  archive: '📦',
-  spreadsheet: '📊',
-  presentation: '📋',
-  file: '📄'
+// Utility function to format file size
+export const formatBytes = (bytes: number, decimals = 2): string => {
+  if (bytes === 0) return '0 Bytes'
+  
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
 // Utility function to validate file
@@ -172,10 +106,9 @@ export const validateFile = (file: File) => {
   }
 }
 
-// Utility function to format upload progress
-export const formatUploadProgress = (loaded: number, total: number): string => {
-  const percentage = Math.round((loaded / total) * 100)
-  return `${percentage}%`
+// Utility function to get file extension
+export const getFileExtension = (fileName: string): string => {
+  return fileName.split('.').pop()?.toLowerCase() || ''
 }
 
 // Utility function to estimate upload time
@@ -193,3 +126,6 @@ export const estimateUploadTime = (loaded: number, total: number, startTime: num
     return `${Math.round(estimatedMs / 3600000)}h remaining`
   }
 }
+
+// Default export for convenience
+export default FILE_MANAGER_CONFIG

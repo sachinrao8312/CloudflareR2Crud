@@ -1,10 +1,11 @@
-// src/componenets/toast/ToastProvider.tsx
+// src/components/toast/ToastProvider.tsx
 
 'use client'
 
 import React, { ReactNode } from 'react'
 import { ToastContext, useToastState } from './useToast'
 import { ToastConfig } from '../../types/toast'
+import { EnhancedToastContainer } from './ToastContainer'
 
 interface ToastProviderProps {
   children: ReactNode
@@ -20,6 +21,11 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   return (
     <ToastContext.Provider value={toastState}>
       {children}
+      <EnhancedToastContainer 
+        toasts={toastState.toasts}
+        onRemove={toastState.removeToast}
+        darkMode={true}
+      />
     </ToastContext.Provider>
   )
 }

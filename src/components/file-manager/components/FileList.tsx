@@ -1,7 +1,8 @@
 // src/components/file-manager/components/FileList.tsx
 
-import React, { useRef } from 'react'
-import { Search, Eye, Download, ArrowLeft, CheckCircle, Star, Clock, Zap } from 'lucide-react'
+import React, { useRef, useState, useEffect } from 'react'
+import NextImage from 'next/image'
+import { Search, Eye, Download, ArrowLeft, CheckCircle, Star, Clock, Zap, Play, Pause, Volume2 } from 'lucide-react'
 import { FolderItem } from '../../../types/fileManager'
 import { EnhancedFileIcon } from '../../ui/FileIcon'
 import { Button } from '../../ui/Button'
@@ -23,6 +24,216 @@ interface EnhancedFileListProps {
   onDownloadFile: (key: string) => void
   onSelectFiles: (files: File[]) => void
   darkMode: boolean
+}
+
+// Enhanced Image Preview Component
+const InlineImagePreview: React.FC<{
+  fileKey: string
+  fileName: string
+  darkMode: boolean
+  onPreview?: () => void
+}> = ({ fileKey, fileName, darkMode, onPreview }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    const loadPreview = async () => {
+      try {
+        const response = await fetch('/api/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: fileKey })
+        })
+        const data = await response.json()
+        setPreviewUrl(data.signedUrl)
+      } catch (error) {
+        console.error('Error loading preview:', error)
+        setError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadPreview()
+  }, [fileKey])
+
+  if (isLoading) {
+    return (
+      <div className={`w-full h-32 rounded-lg flex items-center justify-center ${
+        darkMode ? 'bg-gray-800' : 'bg-gray-100'
+      }`}>
+        <LoadingSpinner size="sm" />
+      </div>
+    )
+  }
+
+  if (error || !previewUrl) {
+    return (
+      <div className={`w-full h-32 rounded-lg flex items-center justify-center ${
+        darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
+      }`}>
+        <p className="text-sm">Preview unavailable</p>
+      </div>
+    )
+  }
+
+  return (
+    <div 
+      className="w-full h-32 max-h-32 rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 dark:bg-gray-800 cursor-pointer group"
+      onClick={onPreview}
+    >
+      <NextImage
+        src={previewUrl}
+        alt={fileName}
+        width={200}
+        height={128}
+        className="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+        onError={() => setError(true)}
+        sizes="(max-width: 768px) 200px, (max-width: 1200px) 200px, 200px"
+      />
+      {onPreview && (
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 rounded-full p-2">
+            <Eye className="w-5 h-5 text-gray-800" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Enhanced Audio Player Component
+const InlineAudioPlayer: React.FC<{
+  fileKey: string
+  fileName: string
+  darkMode: boolean
+}> = ({ fileKey, fileName, darkMode }) => {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [duration, setDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  useEffect(() => {
+    const loadAudio = async () => {
+      try {
+        const response = await fetch('/api/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: fileKey })
+        })
+        const data = await response.json()
+        setAudioUrl(data.signedUrl)
+      } catch (error) {
+        console.error('Error loading audio:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadAudio()
+  }, [fileKey])
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const updateTime = () => setCurrentTime(audio.currentTime)
+    const updateDuration = () => setDuration(audio.duration)
+    const onEnded = () => setIsPlaying(false)
+
+    audio.addEventListener('timeupdate', updateTime)
+    audio.addEventListener('loadedmetadata', updateDuration)
+    audio.addEventListener('ended', onEnded)
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime)
+      audio.removeEventListener('loadedmetadata', updateDuration)
+      audio.removeEventListener('ended', onEnded)
+    }
+  }, [audioUrl])
+
+  const togglePlay = () => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    if (isPlaying) {
+      audio.pause()
+    } else {
+      audio.play()
+    }
+    setIsPlaying(!isPlaying)
+  }
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return '0:00'
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  if (isLoading) {
+    return (
+      <div className={`w-full p-3 rounded-lg flex items-center space-x-3 ${
+        darkMode ? 'bg-gray-800' : 'bg-gray-100'
+      }`}>
+        <LoadingSpinner size="sm" />
+        <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Loading audio...</span>
+      </div>
+    )
+  }
+
+  if (!audioUrl) {
+    return (
+      <div className={`w-full p-3 rounded-lg flex items-center justify-center ${
+        darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
+      }`}>
+        <p className="text-sm">Audio unavailable</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`w-full p-3 rounded-lg border ${
+      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+    }`}>
+      <audio ref={audioRef} src={audioUrl} />
+      
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={togglePlay}
+          className={`p-2 rounded-full transition-colors ${
+            darkMode 
+              ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+              : 'bg-orange-500 hover:bg-orange-600 text-white'
+          }`}
+        >
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        </button>
+        
+        <div className="flex-1 flex items-center space-x-2">
+          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {formatTime(currentTime)}
+          </span>
+          <div className={`flex-1 h-1 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-300'}`}>
+            <div 
+              className="h-full bg-orange-500 rounded-full transition-all duration-300"
+              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+            />
+          </div>
+          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {formatTime(duration)}
+          </span>
+        </div>
+        
+        <Volume2 className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+      </div>
+      
+      <div className={`mt-2 text-sm truncate ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        {fileName}
+      </div>
+    </div>
+  )
 }
 
 // Enhanced Empty State Component
@@ -71,7 +282,7 @@ const EnhancedEmptyState = ({
       {!searchQuery && (
         <div className="space-y-5">
           <p className={`text-base mb-5 ${secondaryTextClass}`}>
-            🚀 Click "Upload Files" above to start adding files to your storage
+            🚀 Click &quot;Upload Files&quot; above to start adding files to your storage
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -115,7 +326,12 @@ const EnhancedGridItem: React.FC<{
           ? 'border-orange-500 bg-orange-50/20 shadow-xl shadow-orange-500/20 scale-105 animate-pulse' 
           : `${borderClass} hover:border-orange-300/50`
       }`}
-      onClick={() => item.isFolder ? onNavigateToFolder(item.key) : onPreviewFile(item)}
+      onClick={() => {
+        // For images and audio, don't navigate on card click since they have inline previews
+        if (item.fileType !== 'image' && item.fileType !== 'audio') {
+          item.isFolder ? onNavigateToFolder(item.key) : onPreviewFile(item)
+        }
+      }}
     >
       {/* Enhanced Selection Indicator */}
       <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -136,14 +352,33 @@ const EnhancedGridItem: React.FC<{
 
       {/* Enhanced File Icon/Preview */}
       <div className="mb-4 flex justify-center">
-        <div className="relative">
-          <EnhancedFileIcon type={item.fileType || 'file'} size="xl" className="w-20 h-20" />
-          {item.isFolder && (
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-white text-xs font-bold">📁</span>
-            </div>
-          )}
-        </div>
+        {item.fileType === 'image' && !item.isFolder ? (
+          <div className="w-full">
+            <InlineImagePreview 
+              fileKey={item.key} 
+              fileName={item.name} 
+              darkMode={darkMode}
+              onPreview={() => onPreviewFile(item)}
+            />
+          </div>
+        ) : item.fileType === 'audio' && !item.isFolder ? (
+          <div className="w-full">
+            <InlineAudioPlayer 
+              fileKey={item.key} 
+              fileName={item.name} 
+              darkMode={darkMode}
+            />
+          </div>
+        ) : (
+          <div className="relative">
+            <EnhancedFileIcon type={item.fileType || 'file'} size="xl" className="w-20 h-20" />
+            {item.isFolder && (
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white text-xs font-bold">📁</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Enhanced File Info */}
@@ -172,13 +407,15 @@ const EnhancedGridItem: React.FC<{
         <div className={`${surfaceClass} backdrop-blur-xl border-t-2 ${borderClass} rounded-b-3xl p-3 flex justify-center space-x-2`}>
           {!item.isFolder && (
             <>
-              <button
-                onClick={(e) => { e.stopPropagation(); onPreviewFile(item); }}
-                className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-200 transition-all hover:scale-110 shadow-lg"
-                title="Preview"
-              >
-                <Eye className="w-4 h-4" />
-              </button>
+              {item.fileType !== 'audio' && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onPreviewFile(item); }}
+                  className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-200 transition-all hover:scale-110 shadow-lg"
+                  title="Preview"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              )}
               <button
                 onClick={(e) => { e.stopPropagation(); onDownloadFile(item.key); }}
                 className="p-2 bg-green-100 text-green-600 rounded-xl hover:bg-green-200 transition-all hover:scale-110 shadow-lg"
@@ -200,8 +437,8 @@ const EnhancedGridItem: React.FC<{
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Enhanced List Item Component  
 const EnhancedListItem: React.FC<{
@@ -220,82 +457,113 @@ const EnhancedListItem: React.FC<{
     ? (darkMode ? 'bg-orange-900/30 border-orange-600/50' : 'bg-orange-50/80 border-orange-300/50')
     : (darkMode ? 'hover:bg-gray-800/50 border-transparent' : 'hover:bg-orange-50/30 border-transparent')
 
+  const isImage = item.fileType === 'image' && !item.isFolder
+  const isAudio = item.fileType === 'audio' && !item.isFolder
+
   return (
-    <div className={`flex items-center justify-between p-4 transition-all duration-300 cursor-pointer rounded-2xl border-2 ${selectedBgClass}`}>
-      <div className="flex items-center space-x-4 flex-1 min-w-0">
-        <button
-          onClick={() => onToggleSelection(item.key)}
-          className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center hover:scale-110 ${
-            isSelected 
-              ? 'bg-orange-500 border-orange-500 shadow-lg shadow-orange-500/30' 
-              : 'border-gray-300 hover:border-orange-400'
-          }`}
-        >
-          {isSelected && <CheckCircle className="w-4 h-4 text-white" />}
-        </button>
-        
-        <EnhancedFileIcon type={item.fileType || 'file'} size="md" className="w-12 h-12" />
-        
-        <div className="flex-1 min-w-0">
+    <div className={`transition-all duration-300 rounded-2xl border-2 ${selectedBgClass} ${isImage || isAudio ? 'p-3' : 'p-4'}`}>
+      <div className={`flex items-center justify-between ${isImage || isAudio ? 'mb-3' : ''}`}>
+        <div className="flex items-center space-x-4 flex-1 min-w-0">
           <button
-            onClick={() => item.isFolder ? onNavigateToFolder(item.key) : onPreviewFile(item)}
-            className="text-left w-full group cursor-pointer"
+            onClick={() => onToggleSelection(item.key)}
+            className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center hover:scale-110 ${
+              isSelected 
+                ? 'bg-orange-500 border-orange-500 shadow-lg shadow-orange-500/30' 
+                : 'border-gray-300 hover:border-orange-400'
+            }`}
           >
-            <p className={`font-bold truncate group-hover:text-orange-500 transition-colors text-lg ${textClass}`}>
-              {item.name}
-            </p>
-            <div className={`flex items-center space-x-3 text-base ${secondaryTextClass} mt-1`}>
-              {!item.isFolder && <span>{formatFileSize(item.size)}</span>}
-              {item.lastModified && (
-                <span className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{new Date(item.lastModified).toLocaleDateString()}</span>
-                </span>
-              )}
-            </div>
+            {isSelected && <CheckCircle className="w-4 h-4 text-white" />}
           </button>
+          
+          {!isImage && !isAudio && (
+            <EnhancedFileIcon type={item.fileType || 'file'} size="md" className="w-12 h-12" />
+          )}
+          
+          <div className="flex-1 min-w-0">
+            <button
+              onClick={() => item.isFolder ? onNavigateToFolder(item.key) : onPreviewFile(item)}
+              className="text-left w-full group cursor-pointer"
+            >
+              <p className={`font-bold truncate group-hover:text-orange-500 transition-colors text-lg ${textClass}`}>
+                {item.name}
+              </p>
+              <div className={`flex items-center space-x-3 text-base ${secondaryTextClass} mt-1`}>
+                {!item.isFolder && <span>{formatFileSize(item.size)}</span>}
+                {item.lastModified && (
+                  <span className="flex items-center space-x-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{new Date(item.lastModified).toLocaleDateString()}</span>
+                  </span>
+                )}
+              </div>
+            </button>
+          </div>
+          
+          <div className={`text-right text-base min-w-[130px] ${secondaryTextClass}`}>
+            {!item.isFolder && item.fileType && (
+              <div className="space-y-1">
+                <p className="font-semibold capitalize">{item.fileType}</p>
+                <div className="flex items-center justify-end space-x-1">
+                  <Star className="w-3 h-3 text-yellow-500" />
+                  <span className="text-sm">Recent</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         
-        <div className={`text-right text-base min-w-[130px] ${secondaryTextClass}`}>
-          {!item.isFolder && item.fileType && (
-            <div className="space-y-1">
-              <p className="font-semibold capitalize">{item.fileType}</p>
-              <div className="flex items-center justify-end space-x-1">
-                <Star className="w-3 h-3 text-yellow-500" />
-                <span className="text-sm">Recent</span>
-              </div>
-            </div>
-          )}
-        </div>
+        {!item.isFolder && (
+          <div className="flex items-center space-x-2 ml-6">
+            {item.fileType !== 'audio' && (
+              <button
+                onClick={() => onPreviewFile(item)}
+                className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-200 transition-all hover:scale-110 shadow-lg"
+                title="Preview"
+              >
+                <Eye className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={() => onDownloadFile(item.key)}
+              className="p-2 bg-green-100 text-green-600 rounded-xl hover:bg-green-200 transition-all hover:scale-110 shadow-lg"
+              title="Download"
+            >
+              <Download className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+        
+        {item.isFolder && (
+          <button
+            onClick={() => onNavigateToFolder(item.key)}
+            className="p-2 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200 transition-all hover:scale-110 shadow-lg"
+            title="Open Folder"
+          >
+            <ArrowLeft className="w-5 h-5 rotate-180" />
+          </button>
+        )}
       </div>
       
-      {!item.isFolder && (
-        <div className="flex items-center space-x-2 ml-6">
-          <button
-            onClick={() => onPreviewFile(item)}
-            className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-200 transition-all hover:scale-110 shadow-lg"
-            title="Preview"
-          >
-            <Eye className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => onDownloadFile(item.key)}
-            className="p-2 bg-green-100 text-green-600 rounded-xl hover:bg-green-200 transition-all hover:scale-110 shadow-lg"
-            title="Download"
-          >
-            <Download className="w-5 h-5" />
-          </button>
+      {/* Inline previews for images and audio in list view */}
+      {isImage && (
+        <div className="w-full max-w-xs">
+          <InlineImagePreview 
+            fileKey={item.key} 
+            fileName={item.name} 
+            darkMode={darkMode}
+            onPreview={() => onPreviewFile(item)}
+          />
         </div>
       )}
       
-      {item.isFolder && (
-        <button
-          onClick={() => onNavigateToFolder(item.key)}
-          className="p-2 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200 transition-all hover:scale-110 shadow-lg"
-          title="Open Folder"
-        >
-          <ArrowLeft className="w-5 h-5 rotate-180" />
-        </button>
+      {isAudio && (
+        <div className="w-full">
+          <InlineAudioPlayer 
+            fileKey={item.key} 
+            fileName={item.name} 
+            darkMode={darkMode}
+          />
+        </div>
       )}
     </div>
   );

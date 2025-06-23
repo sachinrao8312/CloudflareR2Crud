@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { FileObject, FolderItem } from '../../../types/fileManager'
+import { getFileType, sortFiles, matchesSearchQuery } from '../../../utils/fileUtils'
 
 export const useFileManagerState = () => {
   const [files, setFiles] = useState<FileObject[]>([])
@@ -23,7 +24,7 @@ export const useFileManagerState = () => {
     console.log('Fetching files...') // Debug log
     setIsLoading(true)
     try {
-      const response = await fetch('/api/files')
+      const response = await fetch(`/api/files?prefix=${encodeURIComponent(currentPath)}`)
       console.log('Response status:', response.status) // Debug log
       
       if (!response.ok) {
@@ -44,11 +45,78 @@ export const useFileManagerState = () => {
       setIsLoading(false)
       console.log('Loading set to false') // Debug log
     }
-  }, [])
+  }, [currentPath])
 
-  // Fetch files on component mount
+  // Process files into display items
   useEffect(() => {
-    console.log('Component mounted, fetching files...') // Debug log
+    const processFiles = () => {
+      let items: FolderItem[] = []
+      
+      if (searchQuery.trim()) {
+        // For search, show all matching files regardless of path
+        items = files
+          .filter(file => file.Key && matchesSearchQuery(file.Key, searchQuery))
+          .map(file => ({
+            key: file.Key!,
+            name: file.Key!.split('/').pop() || file.Key!,
+            size: file.Size,
+            lastModified: file.LastModified,
+            isFolder: false,
+            fileType: getFileType(file.Key!)
+          }))
+      } else {
+        // Group files by folder structure
+        const folderMap = new Map<string, FolderItem>()
+        const fileItems: FolderItem[] = []
+        
+        files.forEach(file => {
+          if (!file.Key) return
+          
+          const relativePath = currentPath ? file.Key.replace(currentPath, '') : file.Key
+          const pathParts = relativePath.split('/').filter(part => part)
+          
+          if (pathParts.length === 1) {
+            // Direct file in current folder
+            fileItems.push({
+              key: file.Key,
+              name: pathParts[0],
+              size: file.Size,
+              lastModified: file.LastModified,
+              isFolder: false,
+              fileType: getFileType(file.Key)
+            })
+          } else if (pathParts.length > 1) {
+            // File in subfolder - create folder entry
+            const folderName = pathParts[0]
+            const folderKey = currentPath + folderName + '/'
+            
+            if (!folderMap.has(folderKey)) {
+              folderMap.set(folderKey, {
+                key: folderKey,
+                name: folderName,
+                isFolder: true,
+                size: 0,
+                lastModified: new Date(),
+                fileType: 'folder'
+              })
+            }
+          }
+        })
+        
+        items = [...Array.from(folderMap.values()), ...fileItems]
+      }
+      
+      // Sort items
+      const sortedItems = sortFiles(items, sortBy, sortOrder)
+      setDisplayItems(sortedItems)
+    }
+    
+    processFiles()
+  }, [files, currentPath, searchQuery, sortBy, sortOrder])
+
+  // Fetch files on component mount and when path changes
+  useEffect(() => {
+    console.log('Component mounted or path changed, fetching files...') // Debug log
     fetchFiles()
   }, [fetchFiles])
 

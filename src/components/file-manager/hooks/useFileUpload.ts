@@ -174,7 +174,7 @@ export const useFileUpload = (
       setUploadProgress({})
       abortControllerRef.current = null
     }
-  }, [selectedFiles, state.currentPath, state.fetchFiles, uploadFileWithProgress, addToast, clearFiles])
+  }, [selectedFiles, state, uploadFileWithProgress, addToast, clearFiles])
 
   const cancelUpload = useCallback(() => {
     if (abortControllerRef.current) {

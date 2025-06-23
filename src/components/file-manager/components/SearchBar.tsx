@@ -149,7 +149,7 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
                     }
                   </p>
                   <p className={`text-sm ${secondaryTextClass}`}>
-                    for "{searchQuery}"
+                    for &quot;{searchQuery}&quot;
                   </p>
                 </div>
               </div>

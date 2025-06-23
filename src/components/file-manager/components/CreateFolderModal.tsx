@@ -116,7 +116,7 @@ export const CreateFolderModal: React.FC<CreateFolderModalProps> = ({
           {validName && (
             <div className="mt-2 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-700">
-                <strong>Suggestion:</strong> "{validName}"
+                <strong>Suggestion:</strong> &quot;{validName}&quot;
               </p>
               <button
                 onClick={() => onFolderNameChange(validName)}

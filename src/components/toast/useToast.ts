@@ -1,4 +1,5 @@
 // src/components/toast/useToast.ts
+'use client'
 
 import { useState, useCallback, useEffect, createContext, useContext } from 'react'
 import { Toast, ToastInput, ToastContextType, ToastConfig } from '../../types/toast'
@@ -27,6 +28,10 @@ export const useToastState = (config: ToastConfig = {}) => {
     return `toast-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
   }, [])
 
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id))
+  }, [])
+
   const addToast = useCallback((toast: ToastInput) => {
     const id = generateId()
     const newToast: Toast = {
@@ -46,11 +51,7 @@ export const useToastState = (config: ToastConfig = {}) => {
     setTimeout(() => {
       removeToast(id)
     }, newToast.duration)
-  }, [generateId, mergedConfig.defaultDuration, mergedConfig.maxToasts])
-
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id))
-  }, [])
+  }, [generateId, mergedConfig.defaultDuration, mergedConfig.maxToasts, removeToast])
 
   const clearAllToasts = useCallback(() => {
     setToasts([])

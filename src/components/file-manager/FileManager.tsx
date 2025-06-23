@@ -16,7 +16,6 @@ import { FilePreview } from './components/FilePreview'
 import { CreateFolderModal } from './components/CreateFolderModal'
 import { DeleteConfirmModal } from './components/DeleteConfirmModal'
 import { EnhancedUploadDropdown } from './components/UploadDropdown'
-import { EnhancedToastContainer } from '../toast/ToastContainer'
 import { useToast } from '../toast/useToast'
 
 // Enhanced Drag and Drop Overlay
@@ -89,7 +88,7 @@ const FileManager: React.FC = () => {
 
   // State management
   const state = useFileManagerState()
-  const { toasts, addToast, removeToast } = useToast()
+  const { addToast } = useToast()
   
   // Feature hooks
   const fileUpload = useFileUpload(state, addToast)
@@ -211,12 +210,7 @@ const FileManager: React.FC = () => {
         />
       </div>
 
-      {/* Enhanced Toast Container */}
-      <EnhancedToastContainer 
-        toasts={toasts} 
-        onRemove={removeToast} 
-        darkMode={darkMode} 
-      />
+      {/* Enhanced Toast Container - moved to layout.tsx */}
 
       {/* Enhanced Drag and Drop Overlay */}
       <DragDropOverlay 

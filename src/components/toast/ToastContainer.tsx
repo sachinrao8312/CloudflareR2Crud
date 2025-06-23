@@ -1,8 +1,10 @@
 // src/components/toast/ToastContainer.tsx
+'use client'
 
 import React from 'react'
 import { Toast } from '../../types/toast'
 import { EnhancedToastItem } from './ToastItem'
+import { useToast } from './useToast'
 
 interface EnhancedToastContainerProps {
   toasts: Toast[]
@@ -81,6 +83,19 @@ export const EnhancedToastContainer: React.FC<EnhancedToastContainerProps> = ({
         </div>
       )}
     </div>
+  )
+}
+
+// Wrapper component that uses the toast context
+export const ToastContainer: React.FC<{ darkMode?: boolean }> = ({ darkMode = true }) => {
+  const { toasts, removeToast } = useToast()
+  
+  return (
+    <EnhancedToastContainer 
+      toasts={toasts}
+      onRemove={removeToast}
+      darkMode={darkMode}
+    />
   )
 }
 
