@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import NextImage from 'next/image'
-import { Search, Eye, Download, ArrowLeft, CheckCircle, Star, Clock, Zap, Play, Pause, Volume2, Trash2 } from 'lucide-react'
+import { Search, Download, ArrowLeft, CheckCircle, Star, Clock, Zap, Play, Pause, Volume2, Trash2 } from 'lucide-react'
 import { FolderItem } from '../../../types/fileManager'
 import { EnhancedFileIcon } from '../../ui/FileIcon'
 import { Button } from '../../ui/Button'
@@ -25,6 +25,8 @@ interface EnhancedFileListProps {
   onDeleteFile: (key: string) => void
   onSelectFiles: (files: File[]) => void
   darkMode: boolean
+  totalStorage?: string
+  filesCount?: number
 }
 
 // Enhanced Image Preview Component
@@ -80,8 +82,7 @@ const InlineImagePreview: React.FC<{
 
   return (
     <div 
-      className="w-full h-40 rounded-lg overflow-hidden relative bg-gray-100 dark:bg-gray-800 cursor-pointer group border border-gray-200 dark:border-gray-700 flex items-center justify-center"
-      onClick={onPreview}
+      className="w-full h-40 rounded-lg overflow-hidden relative bg-gray-100 dark:bg-gray-800 group border border-gray-200 dark:border-gray-700 flex items-center justify-center"
     >
       <div className="absolute inset-0 p-1">
         <NextImage
@@ -93,13 +94,7 @@ const InlineImagePreview: React.FC<{
           sizes="(max-width: 768px) 300px, (max-width: 1200px) 300px, 300px"
         />
       </div>
-      {onPreview && (
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center z-10">
-          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 rounded-full p-2">
-            <Eye className="w-5 h-5 text-gray-800" />
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }
@@ -332,7 +327,7 @@ const EnhancedGridItem: React.FC<{
       onClick={() => {
         // For images and audio, don't navigate on card click since they have inline previews
         if (item.fileType !== 'image' && item.fileType !== 'audio') {
-          item.isFolder ? onNavigateToFolder(item.key) : onPreviewFile(item)
+          item.isFolder ? onNavigateToFolder(item.key) : onDownloadFile(item.key)
         }
       }}
     >
@@ -357,12 +352,11 @@ const EnhancedGridItem: React.FC<{
       <div className="mb-2.5 flex justify-center">
         {item.fileType === 'image' && !item.isFolder ? (
           <div className="w-full">
-            <InlineImagePreview 
-              fileKey={item.key} 
-              fileName={item.name} 
-              darkMode={darkMode}
-              onPreview={() => onPreviewFile(item)}
-            />
+                      <InlineImagePreview 
+            fileKey={item.key} 
+            fileName={item.name} 
+            darkMode={darkMode}
+          />
           </div>
         ) : item.fileType === 'audio' && !item.isFolder ? (
           <div className="w-full">
@@ -409,24 +403,13 @@ const EnhancedGridItem: React.FC<{
       <div className="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
         <div className={`${surfaceClass} backdrop-blur-xl border-t ${borderClass} rounded-b-xl p-1.5 flex justify-center space-x-1`}>
           {!item.isFolder && (
-            <>
-              {item.fileType !== 'audio' && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onPreviewFile(item); }}
-                  className="p-1 bg-orange-100 text-orange-600 rounded-md hover:bg-orange-200 transition-all hover:scale-105 shadow-sm"
-                  title="Preview"
-                >
-                  <Eye className="w-3 h-3" />
-                </button>
-              )}
-              <button
-                onClick={(e) => { e.stopPropagation(); onDownloadFile(item.key); }}
-                className="p-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-all hover:scale-105 shadow-sm"
-                title="Download"
-              >
-                <Download className="w-3 h-3" />
-              </button>
-            </>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDownloadFile(item.key); }}
+              className="p-1 bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-all hover:scale-105 shadow-sm"
+              title="Download"
+            >
+              <Download className="w-3 h-3" />
+            </button>
           )}
           {item.isFolder && (
             <button
@@ -492,7 +475,7 @@ const EnhancedListItem: React.FC<{
           
           <div className="flex-1 min-w-0">
             <button
-              onClick={() => item.isFolder ? onNavigateToFolder(item.key) : onPreviewFile(item)}
+              onClick={() => item.isFolder ? onNavigateToFolder(item.key) : onDownloadFile(item.key)}
               className="text-left w-full group cursor-pointer"
             >
               <p className={`font-bold truncate group-hover:text-orange-500 transition-colors text-lg ${textClass}`}>
@@ -525,15 +508,6 @@ const EnhancedListItem: React.FC<{
         
         {!item.isFolder && (
           <div className="flex items-center space-x-2 ml-6">
-            {item.fileType !== 'audio' && (
-              <button
-                onClick={() => onPreviewFile(item)}
-                className="p-2 bg-orange-100 text-orange-600 rounded-xl hover:bg-orange-200 transition-all hover:scale-110 shadow-lg"
-                title="Preview"
-              >
-                <Eye className="w-5 h-5" />
-              </button>
-            )}
             <button
               onClick={() => onDownloadFile(item.key)}
               className="p-2 bg-green-100 text-green-600 rounded-xl hover:bg-green-200 transition-all hover:scale-110 shadow-lg"
@@ -569,7 +543,6 @@ const EnhancedListItem: React.FC<{
             fileKey={item.key} 
             fileName={item.name} 
             darkMode={darkMode}
-            onPreview={() => onPreviewFile(item)}
           />
         </div>
       )}
@@ -602,7 +575,9 @@ export const EnhancedFileList: React.FC<EnhancedFileListProps> = ({
   onDownloadFile,
   onDeleteFile,
   onSelectFiles,
-  darkMode
+  darkMode,
+  totalStorage = '0 B',
+  filesCount = 0
 }) => {
   // Enhanced theme classes
   const surfaceClass = darkMode ? 'bg-gray-900/90' : 'bg-white/90'
@@ -655,13 +630,16 @@ export const EnhancedFileList: React.FC<EnhancedFileListProps> = ({
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             {isLoading && (
               <div className="flex items-center space-x-1.5">
                 <Zap className="w-3.5 h-3.5 text-orange-500 animate-pulse" />
                 <span className={`text-xs ${secondaryTextClass}`}>Loading...</span>
               </div>
             )}
+            <span className={`text-xs font-medium ${secondaryTextClass}`}>
+              {totalStorage} • {filesCount} files
+            </span>
           </div>
         </div>
       </div>

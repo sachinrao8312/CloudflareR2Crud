@@ -192,6 +192,8 @@ const FileManager: React.FC = () => {
           onDeleteFile={fileOperations.deleteFile}
           onSelectFiles={fileUpload.selectFiles}
           darkMode={darkMode}
+          totalStorage={totalStorage}
+          filesCount={state.displayItems.filter(item => !item.isFolder).length}
         />
 
         {/* Enhanced Modals */}
