@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import NextImage from 'next/image'
-import { Search, Download, ArrowLeft, CheckCircle, Star, Clock, Zap, Play, Pause, Volume2, Trash2 } from 'lucide-react'
+import { Search, Download, ArrowLeft, CheckCircle, Star, Clock, Play, Pause, Volume2, Trash2 } from 'lucide-react'
 import { FolderItem } from '../../../types/fileManager'
 import { EnhancedFileIcon } from '../../ui/FileIcon'
 import { Button } from '../../ui/Button'
@@ -25,8 +25,6 @@ interface EnhancedFileListProps {
   onDeleteFile: (key: string) => void
   onSelectFiles: (files: File[]) => void
   darkMode: boolean
-  totalStorage?: string
-  filesCount?: number
 }
 
 // Enhanced Image Preview Component
@@ -575,74 +573,17 @@ export const EnhancedFileList: React.FC<EnhancedFileListProps> = ({
   onDownloadFile,
   onDeleteFile,
   onSelectFiles,
-  darkMode,
-  totalStorage = '0 B',
-  filesCount = 0
+  darkMode
 }) => {
   // Enhanced theme classes
   const surfaceClass = darkMode ? 'bg-gray-900/90' : 'bg-white/90'
   const borderClass = darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
-  const headerBgClass = darkMode ? 'from-gray-800/90 to-gray-700/50' : 'from-orange-50/90 to-white'
   const textClass = darkMode ? 'text-gray-200' : 'text-gray-900'
   const secondaryTextClass = darkMode ? 'text-gray-400' : 'text-gray-600'
   const dividerClass = darkMode ? 'divide-gray-700/50' : 'divide-gray-100/50'
 
   return (
     <div className={`${surfaceClass} backdrop-blur-xl rounded-3xl shadow-2xl border-2 ${borderClass} overflow-hidden`}>
-      {/* Enhanced List Header */}
-      <div className={`px-4 py-3 bg-gradient-to-r ${headerBgClass} border-b ${borderClass}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {currentPath && !searchQuery && (
-              <button
-                onClick={onNavigateBack}
-                className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 hover:scale-105 shadow-md ${
-                  darkMode 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
-                    : 'bg-orange-100 hover:bg-orange-200 text-orange-700'
-                }`}
-              >
-                <ArrowLeft className="w-3.5 h-3.5 mr-1.5 inline" />
-                Back
-              </button>
-            )}
-            {displayItems.length > 0 && (
-              <button
-                onClick={onSelectAll}
-                className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 hover:scale-105 shadow-md ${
-                  selectedItems.size === displayItems.length
-                    ? (darkMode ? 'bg-orange-800 text-orange-200' : 'bg-orange-500 text-white')
-                    : (darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-orange-100 hover:bg-orange-200 text-orange-700')
-                }`}
-              >
-                {selectedItems.size === displayItems.length ? '✓ Deselect All' : '☐ Select All'}
-              </button>
-            )}
-            <div className="relative">
-              <h2 className={`text-base font-bold ${textClass}`}>
-                {searchQuery ? `🔍 Search Results (${displayItems.length})` : '📁 All Files'}
-              </h2>
-              {isLoading && (
-                <div className="absolute -top-1 -right-1">
-                  <LoadingSpinner size="sm" />
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            {isLoading && (
-              <div className="flex items-center space-x-1.5">
-                <Zap className="w-3.5 h-3.5 text-orange-500 animate-pulse" />
-                <span className={`text-xs ${secondaryTextClass}`}>Loading...</span>
-              </div>
-            )}
-            <span className={`text-xs font-medium ${secondaryTextClass}`}>
-              {totalStorage} • {filesCount} files
-            </span>
-          </div>
-        </div>
-      </div>
 
       {/* Enhanced File List Content */}
       <div className={viewMode === 'grid' ? 'p-4' : 'p-3'}>

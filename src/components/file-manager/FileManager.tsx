@@ -163,6 +163,14 @@ const FileManager: React.FC = () => {
           onSortOrderChange={state.setSortOrder}
           resultsCount={state.displayItems.length}
           darkMode={darkMode}
+          displayItems={state.displayItems}
+          selectedItems={state.selectedItems}
+          currentPath={state.currentPath}
+          onNavigateBack={navigation.navigateBack}
+          onSelectAll={state.toggleSelectAll}
+          totalStorage={totalStorage}
+          filesCount={state.displayItems.filter(item => !item.isFolder).length}
+          isLoading={state.isLoading}
         />
 
         {/* Enhanced Bulk Actions */}
@@ -192,8 +200,6 @@ const FileManager: React.FC = () => {
           onDeleteFile={fileOperations.deleteFile}
           onSelectFiles={fileUpload.selectFiles}
           darkMode={darkMode}
-          totalStorage={totalStorage}
-          filesCount={state.displayItems.filter(item => !item.isFolder).length}
         />
 
         {/* Enhanced Modals */}

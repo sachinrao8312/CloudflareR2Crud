@@ -95,7 +95,7 @@ export const useFileManagerState = () => {
                 key: folderKey,
                 name: folderName,
                 isFolder: true,
-                size: 0,
+                size: undefined,
                 lastModified: new Date(),
                 fileType: 'folder'
               })

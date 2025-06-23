@@ -1,7 +1,8 @@
 // src/components/file-manager/components/SearchBar.tsx
 
 import React, { ChangeEvent, useRef, useEffect, useState } from 'react'
-import { Search, X, SortAsc, SortDesc, Filter } from 'lucide-react'
+import { Search, X, SortAsc, SortDesc, Filter, ArrowLeft, CheckCircle, Zap } from 'lucide-react'
+import { LoadingSpinner } from '../../ui/LoadingSpinner'
 
 interface EnhancedSearchBarProps {
   searchQuery: string
@@ -14,6 +15,15 @@ interface EnhancedSearchBarProps {
   onSortOrderChange: (sortOrder: 'asc' | 'desc') => void
   resultsCount?: number
   darkMode: boolean
+  // File list header props
+  displayItems?: any[]
+  selectedItems?: Set<string>
+  currentPath?: string
+  onNavigateBack?: () => void
+  onSelectAll?: () => void
+  totalStorage?: string
+  filesCount?: number
+  isLoading?: boolean
 }
 
 export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
@@ -26,7 +36,16 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   onSortChange,
   onSortOrderChange,
   resultsCount,
-  darkMode
+  darkMode,
+  // File list header props
+  displayItems = [],
+  selectedItems = new Set(),
+  currentPath = '',
+  onNavigateBack = () => {},
+  onSelectAll = () => {},
+  totalStorage = '0 B',
+  filesCount = 0,
+  isLoading = false
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [isFocused, setIsFocused] = useState(false)
@@ -216,6 +235,65 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
           )}
         </button>
       </div>
+
+      {/* Enhanced File List Header - Only show when in a folder */}
+      {(currentPath || searchQuery) && (
+        <div className={`${surfaceClass} backdrop-blur-xl rounded-2xl shadow-lg border-2 ${borderClass} overflow-hidden`}>
+          <div className={`px-4 py-3 bg-gradient-to-r ${darkMode ? 'from-gray-800/90 to-gray-700/50' : 'from-orange-50/90 to-white'} border-b ${borderClass}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {currentPath && !searchQuery && (
+                  <button
+                    onClick={onNavigateBack}
+                    className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 hover:scale-105 shadow-md ${
+                      darkMode 
+                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                        : 'bg-orange-100 hover:bg-orange-200 text-orange-700'
+                    }`}
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 mr-1.5 inline" />
+                    Back
+                  </button>
+                )}
+                {displayItems.length > 0 && (
+                  <button
+                    onClick={onSelectAll}
+                    className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 hover:scale-105 shadow-md ${
+                      selectedItems.size === displayItems.length
+                        ? (darkMode ? 'bg-orange-800 text-orange-200' : 'bg-orange-500 text-white')
+                        : (darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-orange-100 hover:bg-orange-200 text-orange-700')
+                    }`}
+                  >
+                    {selectedItems.size === displayItems.length ? '✓ Deselect All' : '☐ Select All'}
+                  </button>
+                )}
+                <div className="relative">
+                  <h2 className={`text-base font-bold ${textClass}`}>
+                    {searchQuery ? `🔍 Search Results (${displayItems.length})` : '📁 All Files'}
+                  </h2>
+                  {isLoading && (
+                    <div className="absolute -top-1 -right-1">
+                      <LoadingSpinner size="sm" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                {isLoading && (
+                  <div className="flex items-center space-x-1.5">
+                    <Zap className="w-3.5 h-3.5 text-orange-500 animate-pulse" />
+                    <span className={`text-xs ${secondaryTextClass}`}>Loading...</span>
+                  </div>
+                )}
+                <span className={`text-xs font-medium ${secondaryTextClass}`}>
+                  {totalStorage} • {filesCount} files
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
