@@ -8,17 +8,13 @@ interface EnhancedFileManagerHeaderProps {
   onViewModeChange: (mode: 'grid' | 'list') => void
   darkMode: boolean
   onToggleTheme: () => void
-  totalStorage?: string
-  filesCount?: number
 }
 
 export const EnhancedFileManagerHeader: React.FC<EnhancedFileManagerHeaderProps> = ({
   viewMode,
   onViewModeChange,
   darkMode,
-  onToggleTheme,
-  totalStorage = '0 B',
-  filesCount = 0
+  onToggleTheme
 }) => {
   // Enhanced theme classes
   const surfaceClass = darkMode ? 'bg-gray-900/95' : 'bg-white/95'
@@ -100,20 +96,18 @@ export const EnhancedFileManagerHeader: React.FC<EnhancedFileManagerHeaderProps>
         {/* Compact Status Bar */}
         <div className={`border-t ${borderClass} py-1.5 flex items-center justify-between text-xs`}>
           <div className="flex items-center space-x-3">
-            <span className={secondaryTextClass}>{totalStorage} • {filesCount} files</span>
             <div className="flex items-center space-x-1">
               <div className="w-1 h-1 bg-green-500 rounded-full" />
               <span className={secondaryTextClass}>Connected</span>
             </div>
+            <span className={`px-2 py-0.5 rounded text-xs ${
+              darkMode 
+                ? 'bg-green-900/30 text-green-300' 
+                : 'bg-green-100 text-green-700'
+            }`}>
+              Ready
+            </span>
           </div>
-          
-          <span className={`px-2 py-0.5 rounded text-xs ${
-            darkMode 
-              ? 'bg-green-900/30 text-green-300' 
-              : 'bg-green-100 text-green-700'
-          }`}>
-            Ready
-          </span>
         </div>
       </div>
 

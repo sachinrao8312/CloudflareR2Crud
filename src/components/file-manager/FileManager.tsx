@@ -121,19 +121,9 @@ const FileManager: React.FC = () => {
         onViewModeChange={state.setViewMode}
         darkMode={darkMode}
         onToggleTheme={toggleTheme}
-        totalStorage={totalStorage}
-        filesCount={state.displayItems.filter(item => !item.isFolder).length}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Enhanced Navigation */}
-        <EnhancedBreadcrumbs 
-          currentPath={state.currentPath}
-          onNavigate={navigation.navigateToFolder}
-          onGoHome={() => navigation.navigateToFolder('')}
-          darkMode={darkMode}
-        />
-
         {/* Enhanced Upload Section */}
         <EnhancedUploadDropdown
           isOpen={uploadDropdownOpen}
@@ -182,6 +172,14 @@ const FileManager: React.FC = () => {
             darkMode={darkMode}
           />
         )}
+
+        {/* Enhanced Navigation - Moved above File List */}
+        <EnhancedBreadcrumbs 
+          currentPath={state.currentPath}
+          onNavigate={navigation.navigateToFolder}
+          onGoHome={() => navigation.navigateToFolder('')}
+          darkMode={darkMode}
+        />
 
         {/* Enhanced File List */}
         <EnhancedFileList
