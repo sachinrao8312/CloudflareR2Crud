@@ -17,6 +17,7 @@ import { CreateFolderModal } from './components/CreateFolderModal'
 import { DeleteConfirmModal } from './components/DeleteConfirmModal'
 import { EnhancedUploadDropdown } from './components/UploadDropdown'
 import { useToast } from '../toast/useToast'
+import { formatFileSize } from '../../utils/fileUtils'
 
 // Enhanced Drag and Drop Overlay
 interface DragDropOverlayProps {
@@ -96,6 +97,14 @@ const FileManager: React.FC = () => {
   const navigation = useNavigation(state)
   const dragAndDrop = useDragAndDrop(fileUpload.addFiles)
 
+  // Calculate total storage
+  const totalStorage = React.useMemo(() => {
+    const totalBytes = state.displayItems
+      .filter(item => !item.isFolder && item.size)
+      .reduce((total: number, item) => total + (item.size || 0), 0)
+    return formatFileSize(totalBytes)
+  }, [state.displayItems])
+
   // Enhanced theme classes
   const bgClass = darkMode 
     ? 'bg-gradient-to-br from-black via-gray-900 to-gray-800' 
@@ -112,6 +121,8 @@ const FileManager: React.FC = () => {
         onViewModeChange={state.setViewMode}
         darkMode={darkMode}
         onToggleTheme={toggleTheme}
+        totalStorage={totalStorage}
+        filesCount={state.displayItems.filter(item => !item.isFolder).length}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -178,6 +189,7 @@ const FileManager: React.FC = () => {
           onNavigateBack={navigation.navigateBack}
           onPreviewFile={state.setPreviewFile}
           onDownloadFile={fileOperations.downloadFile}
+          onDeleteFile={fileOperations.deleteFile}
           onSelectFiles={fileUpload.selectFiles}
           darkMode={darkMode}
         />

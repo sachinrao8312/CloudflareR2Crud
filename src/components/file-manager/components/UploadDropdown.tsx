@@ -87,37 +87,37 @@ export const EnhancedUploadDropdown: React.FC<EnhancedUploadDropdownProps> = ({
       {/* Enhanced Upload Toggle Button */}
       <button
         onClick={onToggle}
-        className={`group w-full flex items-center justify-between px-8 py-6 ${surfaceClass} backdrop-blur-xl border-2 ${borderClass} rounded-3xl shadow-xl transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:shadow-2xl ${
+        className={`group w-full flex items-center justify-between px-4 py-3 ${surfaceClass} backdrop-blur-xl border ${borderClass} rounded-2xl shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:shadow-xl ${
           darkMode ? 'hover:bg-gray-800/90 hover:border-gray-600/50' : 'hover:bg-white hover:border-orange-300/50'
         }`}
       >
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <div className="relative">
-            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-500/25 group-hover:scale-110 transition-all duration-300">
-              <Upload className="w-7 h-7 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-all duration-300">
+              <Upload className="w-5 h-5 text-white" />
             </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full animate-pulse" />
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full animate-pulse" />
           </div>
           <div className="text-left">
-            <p className={`font-bold text-2xl ${textClass} group-hover:text-orange-500 transition-colors`}>
+            <p className={`font-bold text-lg ${textClass} group-hover:text-orange-500 transition-colors`}>
               Upload Files
             </p>
-            <p className={`text-lg ${secondaryTextClass}`}>
+            <p className={`text-sm ${secondaryTextClass}`}>
               Click to expand upload options
             </p>
           </div>
         </div>
         
-        <div className="flex items-center space-x-3">
-          <span className={`text-lg font-medium ${secondaryTextClass}`}>
+        <div className="flex items-center space-x-2">
+          <span className={`text-sm font-medium ${secondaryTextClass}`}>
             {isOpen ? 'Collapse' : 'Expand'}
           </span>
-          <div className={`p-2 rounded-xl transition-all duration-300 ${
+          <div className={`p-1.5 rounded-lg transition-all duration-300 ${
             darkMode ? 'bg-gray-800/50' : 'bg-orange-50/50'
           }`}>
             {isOpen ? 
-              <ChevronUp className={`w-6 h-6 ${secondaryTextClass} group-hover:text-orange-500 transition-colors`} /> : 
-              <ChevronDown className={`w-6 h-6 ${secondaryTextClass} group-hover:text-orange-500 transition-colors`} />
+              <ChevronUp className={`w-4 h-4 ${secondaryTextClass} group-hover:text-orange-500 transition-colors`} /> : 
+              <ChevronDown className={`w-4 h-4 ${secondaryTextClass} group-hover:text-orange-500 transition-colors`} />
             }
           </div>
         </div>
@@ -128,9 +128,9 @@ export const EnhancedUploadDropdown: React.FC<EnhancedUploadDropdownProps> = ({
         isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
       }`}>
         <div 
-          className={`relative ${darkMode ? 'bg-gray-800/50' : 'bg-orange-50/30'} backdrop-blur-xl border-2 border-dashed rounded-3xl p-16 text-center transition-all duration-700 shadow-2xl cursor-pointer hover:shadow-3xl ${
+          className={`relative ${darkMode ? 'bg-gray-800/50' : 'bg-orange-50/30'} backdrop-blur-xl border border-dashed rounded-2xl p-8 text-center transition-all duration-500 shadow-lg cursor-pointer hover:shadow-xl ${
             dragActive 
-              ? 'border-orange-500 bg-orange-500/10 shadow-orange-500/30 shadow-3xl scale-[1.02] animate-pulse' 
+              ? 'border-orange-500 bg-orange-500/10 shadow-orange-500/30 shadow-xl scale-[1.01] animate-pulse' 
               : `${darkMode ? 'border-gray-600 hover:border-orange-500/50 hover:bg-gray-700/60' : 'border-orange-300 hover:border-orange-500/50 hover:bg-orange-100/60'}`
           }`}
           {...dragHandlers}
@@ -151,35 +151,35 @@ export const EnhancedUploadDropdown: React.FC<EnhancedUploadDropdownProps> = ({
             </>
           )}
 
-          <div className="relative z-10 space-y-10">
+          <div className="relative z-10 space-y-6">
             {/* Enhanced Icon with Animations */}
-            <div className="relative mx-auto w-28 h-28">
-              <div className={`w-28 h-28 mx-auto rounded-3xl flex items-center justify-center bg-gradient-to-br from-orange-500 via-red-600 to-orange-600 shadow-3xl transition-all duration-700 cursor-pointer ${
+            <div className="relative mx-auto w-16 h-16">
+              <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center bg-gradient-to-br from-orange-500 via-red-600 to-orange-600 shadow-xl transition-all duration-500 cursor-pointer ${
                 dragActive 
-                  ? 'shadow-orange-500/50 scale-125 rotate-12 animate-bounce' 
-                  : 'shadow-orange-500/30 hover:scale-110 hover:rotate-6'
+                  ? 'shadow-orange-500/50 scale-110 rotate-6 animate-bounce' 
+                  : 'shadow-orange-500/30 hover:scale-105 hover:rotate-3'
               }`}>
-                <Upload className={`w-14 h-14 text-white transition-all duration-500 ${dragActive ? 'scale-125 animate-pulse' : ''}`} />
+                <Upload className={`w-8 h-8 text-white transition-all duration-500 ${dragActive ? 'scale-110 animate-pulse' : ''}`} />
               </div>
               
               {/* Magical sparkles */}
-              <Sparkles className={`absolute top-0 right-0 w-6 h-6 text-yellow-400 transition-all duration-500 ${
-                dragActive ? 'animate-spin scale-125' : 'animate-pulse'
+              <Sparkles className={`absolute top-0 right-0 w-4 h-4 text-yellow-400 transition-all duration-500 ${
+                dragActive ? 'animate-spin scale-110' : 'animate-pulse'
               }`} />
-              <Zap className={`absolute bottom-0 left-0 w-5 h-5 text-orange-400 transition-all duration-500 ${
-                dragActive ? 'animate-bounce scale-110' : 'animate-pulse'
+              <Zap className={`absolute bottom-0 left-0 w-3 h-3 text-orange-400 transition-all duration-500 ${
+                dragActive ? 'animate-bounce scale-105' : 'animate-pulse'
               }`} />
             </div>
 
             {/* Enhanced Text Content */}
-            <div className="space-y-4">
-              <h3 className={`text-4xl font-bold transition-all duration-500 ${
-                dragActive ? 'text-orange-500 scale-110 animate-pulse' : textClass
+            <div className="space-y-3">
+              <h3 className={`text-2xl font-bold transition-all duration-500 ${
+                dragActive ? 'text-orange-500 scale-105 animate-pulse' : textClass
               }`}>
                 {dragActive ? '🎯 Drop files here!' : '📁 Upload your files'}
               </h3>
               
-              <p className={`text-xl max-w-lg mx-auto leading-relaxed ${secondaryTextClass}`}>
+              <p className={`text-sm max-w-md mx-auto ${secondaryTextClass}`}>
                 {dragActive 
                   ? 'Release to upload these files to your cloud storage'
                   : 'Drag & drop files here, paste from clipboard, or click to browse'
@@ -187,28 +187,28 @@ export const EnhancedUploadDropdown: React.FC<EnhancedUploadDropdownProps> = ({
               </p>
               
               {/* Enhanced supported formats */}
-              <div className={`inline-flex items-center space-x-2 px-6 py-3 rounded-2xl ${
+              <div className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg ${
                 darkMode ? 'bg-gray-700/50' : 'bg-white/70'
               } backdrop-blur-sm`}>
-                <Sparkles className="w-5 h-5 text-orange-500" />
-                <span className={`text-sm font-medium ${secondaryTextClass}`}>
+                <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+                <span className={`text-xs font-medium ${secondaryTextClass}`}>
                   Supports: Images, Videos, Documents, Archives • Max 100MB per file
                 </span>
               </div>
             </div>
 
             {/* Enhanced Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-3">
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   fileInputRef.current?.click()
                 }}
-                className="group px-10 py-5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold rounded-2xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer"
+                className="group px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <div className="flex items-center space-x-3">
-                  <Upload className="w-6 h-6 group-hover:animate-bounce" />
-                  <span className="text-lg">Choose Files</span>
+                <div className="flex items-center space-x-2">
+                  <Upload className="w-4 h-4 group-hover:animate-bounce" />
+                  <span className="text-sm">Choose Files</span>
                 </div>
               </button>
 
@@ -217,11 +217,11 @@ export const EnhancedUploadDropdown: React.FC<EnhancedUploadDropdownProps> = ({
                   e.stopPropagation()
                   folderInputRef.current?.click()
                 }}
-                className="group px-10 py-5 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold rounded-2xl shadow-xl shadow-gray-500/30 hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer"
+                className="group px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-lg shadow-lg shadow-gray-500/30 hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <div className="flex items-center space-x-3">
-                  <FolderPlus className="w-6 h-6 group-hover:animate-pulse" />
-                  <span className="text-lg">Upload Folder</span>
+                <div className="flex items-center space-x-2">
+                  <FolderPlus className="w-4 h-4 group-hover:animate-pulse" />
+                  <span className="text-sm">Upload Folder</span>
                 </div>
               </button>
 
@@ -230,25 +230,25 @@ export const EnhancedUploadDropdown: React.FC<EnhancedUploadDropdownProps> = ({
                   e.stopPropagation()
                   onCreateFolder()
                 }}
-                className="group px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer"
+                className="group px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <div className="flex items-center space-x-3">
-                  <FolderPlus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
-                  <span className="text-lg">New Folder</span>
+                <div className="flex items-center space-x-2">
+                  <FolderPlus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+                  <span className="text-sm">New Folder</span>
                 </div>
               </button>
             </div>
 
             {/* Enhanced Tips */}
-            <div className={`space-y-2 text-sm ${secondaryTextClass}`}>
-              <p className="flex items-center justify-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" />
+            <div className={`space-y-1 text-xs ${secondaryTextClass}`}>
+              <p className="flex items-center justify-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-orange-500" />
                 <strong>Pro tip:</strong> Copy files and paste here (Ctrl+V)
               </p>
-              <p className="flex items-center justify-center gap-2">
-                <Zap className="w-4 h-4 text-orange-500" />
+              <p className="flex items-center justify-center gap-1.5">
+                <Zap className="w-3 h-3 text-orange-500" />
                 Or use the keyboard shortcut 
-                <kbd className={`mx-2 px-3 py-1 rounded-lg border ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'}`}>
+                <kbd className={`mx-1 px-2 py-0.5 rounded border ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'}`}>
                   Ctrl+U
                 </kbd> 
                 to quick upload
