@@ -8,6 +8,7 @@ interface UseFileOperationsReturn {
   downloadFile: (key: string, fileName?: string) => Promise<void>
   createFolder: (folderName: string) => Promise<void>
   bulkDelete: () => Promise<void>
+  deleteFile: (key: string) => Promise<void>
 }
 
 export const useFileOperations = (
@@ -239,9 +240,47 @@ export const useFileOperations = (
     }
   }, [state, addToast])
 
+  const deleteFile = useCallback(async (key: string) => {
+    if (!key.trim()) return
+
+    try {
+      addToast({
+        type: 'info',
+        title: 'Deleting File',
+        message: `Deleting file "${key}"...`
+      })
+
+      const response = await fetch('/api/files', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Failed to delete file: ${response.statusText}`)
+      }
+
+      addToast({
+        type: 'success',
+        title: 'File Deleted',
+        message: `File "${key}" deleted successfully`
+      })
+      
+      state.fetchFiles()
+    } catch (error) {
+      console.error('Error deleting file:', error)
+      addToast({
+        type: 'error',
+        title: 'Delete Failed',
+        message: error instanceof Error ? error.message : 'Error deleting file'
+      })
+    }
+  }, [state, addToast])
+
   return {
     downloadFile,
     createFolder,
-    bulkDelete
+    bulkDelete,
+    deleteFile
   }
 }
