@@ -33,7 +33,7 @@ export const EnhancedFileManagerHeader: React.FC<EnhancedFileManagerHeaderProps>
           <div className="flex items-center space-x-3">
             <div className="relative group">
               <div className="w-8 h-8 bg-gradient-to-br from-orange-500 via-red-600 to-orange-600 rounded-lg flex items-center justify-center shadow-md shadow-orange-500/25 transform rotate-2 cursor-pointer hover:scale-105 hover:rotate-3 transition-all duration-300">
-                <span className="text-white font-bold text-sm transform -rotate-2">R2</span>
+                <span className="text-white font-bold text-sm transform -rotate-2">OS</span>
               </div>
             </div>
             
@@ -43,9 +43,9 @@ export const EnhancedFileManagerHeader: React.FC<EnhancedFileManagerHeaderProps>
                   ? 'from-white via-orange-200 to-red-200' 
                   : 'from-gray-900 via-orange-800 to-red-900'
               } bg-clip-text text-transparent`}>
-                File Manager
+                OpenStorage
               </h1>
-              <p className={`text-xs ${secondaryTextClass}`}>Cloudflare R2</p>
+              <p className={`text-xs ${secondaryTextClass}`}>Works with Cloudflare R2 & Amazon AWS S3</p>
             </div>
           </div>
           

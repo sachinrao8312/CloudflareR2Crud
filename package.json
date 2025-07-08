@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-r2-with-nextjs-upload-download-delete",
+  "name": "OpenStorage",
   "version": "0.1.0",
   "private": true,
   "scripts": {

@@ -7,8 +7,8 @@ import { ToastProvider } from '@/components/toast/ToastProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Cloudflare R2 with Next.js: Upload, Download, Delete',
-  description: 'File management system with Cloudflare R2'
+  title: 'OpenStorage',
+  description: 'OpenStorage: File management system with Cloudflare R2'
 }
 
 export default function RootLayout({
